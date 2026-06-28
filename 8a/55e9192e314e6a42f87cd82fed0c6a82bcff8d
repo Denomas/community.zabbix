@@ -1,0 +1,27 @@
+tests/integration/targets/test_zabbix_inventory/meta/main.yml
+  s_46d5f10054ebe4::t_ba48210f793b7a 1-3
+tests/integration/targets/test_zabbix_inventory/tasks/main.yml
+  s_46d5f10054ebe4::t_d8d155014d175e 19
+  s_46d5f10054ebe4::t_e6704267b6d8cb 1-18,20-31,33-40
+  s_46d5f10054ebe4::t_738a834fa87281 32
+tests/integration/targets/test_zabbix_inventory/files/groups_zabbix_inventory.yml
+  s_46d5f10054ebe4::t_cf9083040e19a8 1-7
+tests/integration/targets/test_zabbix_inventory/files/zapi_zabbix_inventory.yml
+  s_46d5f10054ebe4::t_e5a4a906ceb361 1-8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "8a55e9192e314e6a42f87cd82fed0c6a82bcff8d",
+  "prompts": {},
+  "sessions": {
+    "s_46d5f10054ebe4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f187ad26-698c-4ac1-b3a5-2d3baf6e9a90",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Tolga Karataş <tolgakaratas@gmail.com>"
+    }
+  }
+}
