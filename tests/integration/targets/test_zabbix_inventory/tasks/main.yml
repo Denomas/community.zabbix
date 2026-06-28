@@ -39,3 +39,18 @@
       - "inv_zapi.stdout is search('zbx_hostgroups') or inv_zapi.stdout is search('zbx_groups')"
       - "inv_zapi.stdout is search('Linux servers')"
     fail_msg: "host_zapi_query did not return host group data (stdout: {{ inv_zapi.stdout }})"
+
+- name: "test - run legacy inventory script --list"
+  ansible.builtin.command:
+    cmd: python {{ role_path.split('/tests/')[0] }}/scripts/inventory/zabbix.py --list
+    chdir: "{{ role_path }}/files"
+  changed_when: false
+  failed_when: false
+  register: legacy_out
+
+- name: "assert - legacy script produced the host group"
+  ansible.builtin.assert:
+    that:
+      - "legacy_out.stdout is search('Linux servers')"
+      - "legacy_out.stdout is search('ExampleHostForInventoryPlugin')"
+    fail_msg: "legacy script did not yield the group (rc={{ legacy_out.rc }} stderr={{ legacy_out.stderr }} stdout={{ legacy_out.stdout }})"
