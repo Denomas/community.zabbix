@@ -1,0 +1,40 @@
+---
+- name: "test - create a host in a known group on the real Zabbix"
+  community.zabbix.zabbix_host:
+    host_name: ExampleHostForInventoryPlugin
+    host_groups:
+      - Linux servers
+    interfaces:
+      - type: 1
+        main: 1
+        useip: 1
+        ip: 192.168.0.50
+        dns: ""
+        port: 10050
+    status: enabled
+    state: present
+
+- name: "test - run plugin with add_zabbix_groups"
+  ansible.builtin.command:
+    cmd: ansible-inventory -i {{ role_path }}/files/groups_zabbix_inventory.yml --list
+  changed_when: false
+  register: inv_groups
+
+- name: "assert - host group present via add_zabbix_groups"
+  ansible.builtin.assert:
+    that:
+      - "'Linux_servers' in (inv_groups.stdout | from_json).keys() | list"
+      - "'ExampleHostForInventoryPlugin' in (inv_groups.stdout | from_json)['Linux_servers']['hosts']"
+    fail_msg: "add_zabbix_groups did not yield the group (stdout: {{ inv_groups.stdout }})"
+
+- name: "test - run plugin with host_zapi_query selectGroups (legacy param)"
+  ansible.builtin.command:
+    cmd: ansible-inventory -i {{ role_path }}/files/zapi_zabbix_inventory.yml --list
+  changed_when: false
+  register: inv_zapi
+
+- name: "assert - host_zapi_query path returned the host (no API error)"
+  ansible.builtin.assert:
+    that:
+      - "'ExampleHostForInventoryPlugin' in (inv_zapi.stdout | from_json)['_meta']['hostvars'].keys() | list"
+    fail_msg: "host_zapi_query selectGroups path failed (stdout: {{ inv_zapi.stdout }})"
