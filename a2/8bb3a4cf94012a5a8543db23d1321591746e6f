@@ -1,0 +1,19 @@
+tests/integration/targets/test_zabbix_inventory/tasks/main.yml
+  s_46d5f10054ebe4::t_d136f6c5adad5e 36-39,42-43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "a28bb3a4cf94012a5a8543db23d1321591746e6f",
+  "prompts": {},
+  "sessions": {
+    "s_46d5f10054ebe4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f187ad26-698c-4ac1-b3a5-2d3baf6e9a90",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Tolga Karataş <tolgakaratas@gmail.com>"
+    }
+  }
+}

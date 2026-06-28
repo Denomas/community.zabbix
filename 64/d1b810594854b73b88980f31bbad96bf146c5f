@@ -1,0 +1,19 @@
+changelogs/fragments/1507-zabbix-inventory-selecthostgroups.yaml
+  s_46d5f10054ebe4::t_33a6d6c8de4440 1-4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "64d1b810594854b73b88980f31bbad96bf146c5f",
+  "prompts": {},
+  "sessions": {
+    "s_46d5f10054ebe4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f187ad26-698c-4ac1-b3a5-2d3baf6e9a90",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Tolga Karataş <tolgakaratas@gmail.com>"
+    }
+  }
+}
