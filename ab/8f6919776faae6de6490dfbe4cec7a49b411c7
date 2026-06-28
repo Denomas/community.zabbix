@@ -1,0 +1,26 @@
+.github/workflows/plugins-integration-targeted.yml
+  s_46d5f10054ebe4::t_13795b59501bac 96-97,107-112
+  s_46d5f10054ebe4::t_88bdf21fe0b8a7 113-115,117-119,121,125,127-129,131-136
+.github/workflows/repo-sanity.yml
+  s_46d5f10054ebe4::t_778be724628e8b 42,46-47,50-61
+  s_46d5f10054ebe4::t_970e68aa1efd20 39-40,44-45,48-49
+.github/workflows/plugins-integration-full.yml
+  s_46d5f10054ebe4::t_20f1e3020e2b2b 44-46,48-50,52,56,58-60,62-64,66-67
+  s_46d5f10054ebe4::t_588996637959a2 26-27,38-43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "ab8f6919776faae6de6490dfbe4cec7a49b411c7",
+  "prompts": {},
+  "sessions": {
+    "s_46d5f10054ebe4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f187ad26-698c-4ac1-b3a5-2d3baf6e9a90",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Tolga Karataş <tolgakaratas@gmail.com>"
+    }
+  }
+}
