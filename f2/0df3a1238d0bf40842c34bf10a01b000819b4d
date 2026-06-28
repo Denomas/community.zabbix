@@ -1,0 +1,24 @@
+plugins/inventory/zabbix_inventory.py
+  s_46d5f10054ebe4::t_c3c89d2b7a8dd7 388-399
+  s_46d5f10054ebe4::t_a0d219c735fcdd 90-101
+  s_46d5f10054ebe4::t_08ab115bbe778d 449
+  s_46d5f10054ebe4::t_485f10a1674981 479,486-488
+  s_46d5f10054ebe4::t_53816bd320336c 259
+  s_46d5f10054ebe4::t_b7bc4196c6cca6 400
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "f20df3a1238d0bf40842c34bf10a01b000819b4d",
+  "prompts": {},
+  "sessions": {
+    "s_46d5f10054ebe4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f187ad26-698c-4ac1-b3a5-2d3baf6e9a90",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Tolga Karataş <tolgakaratas@gmail.com>"
+    }
+  }
+}
