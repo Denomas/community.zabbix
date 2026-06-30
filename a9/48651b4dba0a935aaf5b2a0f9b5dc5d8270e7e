@@ -1,0 +1,42 @@
+.github/workflows/web.yml
+  s_46d5f10054ebe4::t_f18089fb90b461 253-284,291-296
+  s_46d5f10054ebe4::t_c5a627f0826a6d 121,128-164
+.github/workflows/agent.yml
+  s_46d5f10054ebe4::t_d03b3f2ee47ef4 219-249,255-260
+  s_46d5f10054ebe4::t_1cd6c181949ad6 342-372,378-383
+  s_46d5f10054ebe4::t_d34bcd1b590d59 101,107-142
+.github/workflows/server.yml
+  s_46d5f10054ebe4::t_149055159efe53 118,124-159
+  s_46d5f10054ebe4::t_7d635f948e8d8d 241,247-282
+.github/workflows/plugins-integration-full.yml
+  s_46d5f10054ebe4::t_f8c3202bc53bf8 5
+.github/workflows/plugins-integration-targeted.yml
+  s_46d5f10054ebe4::t_df50488b9160a9 4
+.github/workflows/proxy.yml
+  s_46d5f10054ebe4::t_7e10f33206b2df 110,116-151
+  s_46d5f10054ebe4::t_fd61f4f959e440 220-250,256-261
+  s_46d5f10054ebe4::t_281e7109b88dcf 355-385,391-396
+.github/workflows/javagateway.yml
+  s_46d5f10054ebe4::t_3f652e78b554b2 106,111-145
+  s_46d5f10054ebe4::t_3d7a658640292c 224,229-263
+molecule/zabbix_repo/molecule.yml
+  s_46d5f10054ebe4::t_4ace44f745e04e 39
+molecule/requirements.txt
+  s_46d5f10054ebe4::t_0bcdd4871a9275 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "a948651b4dba0a935aaf5b2a0f9b5dc5d8270e7e",
+  "prompts": {},
+  "sessions": {
+    "s_46d5f10054ebe4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f187ad26-698c-4ac1-b3a5-2d3baf6e9a90",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Tolga Karataş <tolgakaratas@gmail.com>"
+    }
+  }
+}
