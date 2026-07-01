@@ -33,12 +33,47 @@ jobs:
       fail-fast: false
       matrix:
         zabbix_container:
-          - version: "7.4"
+          - version: "6.0"
+          - version: "7.0"
+          - version: "7.2"
+          # TEMP Phase-1 (D23): re-enable in Phase 2
+          # - version: "7.4"
         ansible_python:
-          # SMOKE-VALIDATION ONLY: matrix temporarily reduced to a single cell to
-          # cheaply confirm the reporting stack renders on Actions. Restored next commit.
-          - ansible: stable-2.19
+          # https://docs.ansible.com/projects/ansible/latest/reference_appendices/release_and_maintenance.html#ansible-core-changelogs
+          # Newest first (fast feedback), then older releases retroactively. Test the minimum and
+          # maximum supported controller Python per ansible-core branch. devel = next stable.
+          # TEMP Phase-1 (D23): re-enable in Phase 2
+          # - ansible: devel
+          #   python: '3.14'
+          # TEMP Phase-1 (D23): re-enable in Phase 2
+          # - ansible: devel
+          #   python: '3.13'
+          # TEMP Phase-1 (D23): re-enable in Phase 2
+          # - ansible: stable-2.21
+          #   python: '3.14'
+          - ansible: stable-2.21
             python: '3.12'
+          # TEMP Phase-1 (D23): re-enable in Phase 2
+          # - ansible: stable-2.20
+          #   python: '3.14'
+          - ansible: stable-2.20
+            python: '3.12'
+          - ansible: stable-2.19
+            python: '3.13'
+          - ansible: stable-2.19
+            python: '3.11'
+          - ansible: stable-2.18
+            python: '3.13'
+          - ansible: stable-2.18
+            python: '3.11'
+          - ansible: stable-2.17
+            python: '3.12'
+          - ansible: stable-2.17
+            python: '3.10'
+          - ansible: stable-2.16
+            python: '3.12'
+          - ansible: stable-2.16
+            python: '3.10'
 
     steps:
       - name: Check out code
@@ -94,6 +129,7 @@ jobs:
           junit-path: ansible_collections/community/zabbix/tests/output/junit/*.xml
           artifact-name: junit-pi-full-${{ matrix.zabbix_container.version }}-${{ matrix.ansible_python.ansible }}-py${{ matrix.ansible_python.python }}
           check-name: JUnit pi-full ${{ matrix.zabbix_container.version }} ${{ matrix.ansible_python.ansible }}+py${{ matrix.ansible_python.python }}
+          working-directory: ansible_collections/community/zabbix
 
       - name: Upload failure logs
         if: failure()
