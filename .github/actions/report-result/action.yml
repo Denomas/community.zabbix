@@ -36,18 +36,36 @@ inputs:
     description: Python version.
     required: false
     default: ""
+  result-file:
+    description: Optional path to append a machine-readable "cell|...|RESULT" line for the aggregator.
+    required: false
+    default: ""
 runs:
   using: composite
   steps:
     - name: Append result row to step summary
       shell: bash
+      env:
+        OUTCOME: ${{ inputs.outcome }}
+        SCENARIO: ${{ inputs.scenario }}
+        CONTAINER: ${{ inputs.container }}
+        ZABBIX: ${{ inputs.zabbix }}
+        DATABASE: ${{ inputs.database }}
+        ARCH: ${{ inputs.arch }}
+        ANSIBLE: ${{ inputs.ansible }}
+        PYTHON: ${{ inputs.python }}
+        RESULT_FILE: ${{ inputs.result-file }}
       run: |
         result="FAIL"
-        if [ "${{ inputs.outcome }}" = "success" ]; then result="PASS"; fi
+        if [ "${OUTCOME}" = "success" ]; then result="PASS"; fi
         {
           echo "### Result";
           echo "";
           echo "| Scenario | Container | Zabbix | DB/Web | Arch | Ansible+Py | Result |";
           echo "|---|---|---|---|---|---|---|";
-          echo "| ${{ inputs.scenario }} | ${{ inputs.container }} | ${{ inputs.zabbix }} | ${{ inputs.database }} | ${{ inputs.arch }} | ${{ inputs.ansible }} ${{ inputs.python }} | ${result} |";
+          echo "| ${SCENARIO} | ${CONTAINER} | ${ZABBIX} | ${DATABASE} | ${ARCH} | ${ANSIBLE} ${PYTHON} | ${result} |";
         } >> "$GITHUB_STEP_SUMMARY"
+        if [ -n "${RESULT_FILE}" ]; then
+          mkdir -p "$(dirname "${RESULT_FILE}")"
+          echo "${SCENARIO}|${CONTAINER}|${ZABBIX}|${DATABASE}|${ARCH}|${ANSIBLE}|${PYTHON}|${result}" > "${RESULT_FILE}"
+        fi
