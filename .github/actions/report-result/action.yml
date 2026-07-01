@@ -1,0 +1,53 @@
+---
+# Reusable reporter: append a one-row result table to the job's GitHub Actions step summary.
+# Keeps CI results visible at a glance without copy-pasting summary code into every job.
+# Text only (PASS/FAIL) — no emoji, per project output rules.
+name: Report result
+description: Append a single result row to the GitHub Actions step summary for this job.
+inputs:
+  outcome:
+    description: The tested step's outcome (success/failure/cancelled).
+    required: true
+  scenario:
+    description: Scenario or test target name.
+    required: false
+    default: ""
+  container:
+    description: Container image / distro.
+    required: false
+    default: ""
+  zabbix:
+    description: Zabbix version.
+    required: false
+    default: ""
+  database:
+    description: Database or web-server dimension.
+    required: false
+    default: ""
+  arch:
+    description: CPU architecture.
+    required: false
+    default: "amd64"
+  ansible:
+    description: ansible-core branch/version.
+    required: false
+    default: ""
+  python:
+    description: Python version.
+    required: false
+    default: ""
+runs:
+  using: composite
+  steps:
+    - name: Append result row to step summary
+      shell: bash
+      run: |
+        result="FAIL"
+        if [ "${{ inputs.outcome }}" = "success" ]; then result="PASS"; fi
+        {
+          echo "### Result";
+          echo "";
+          echo "| Scenario | Container | Zabbix | DB/Web | Arch | Ansible+Py | Result |";
+          echo "|---|---|---|---|---|---|---|";
+          echo "| ${{ inputs.scenario }} | ${{ inputs.container }} | ${{ inputs.zabbix }} | ${{ inputs.database }} | ${{ inputs.arch }} | ${{ inputs.ansible }} ${{ inputs.python }} | ${result} |";
+        } >> "$GITHUB_STEP_SUMMARY"
