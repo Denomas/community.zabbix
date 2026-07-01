@@ -1,0 +1,34 @@
+---
+# Publish JUnit test results: upload the XML as a build artifact AND render a
+# per-cell GitHub Check via dorny/test-reporter. Caller gates with `if: always()`.
+name: Publish test results
+description: Upload JUnit XML as an artifact and publish it as a GitHub Check.
+inputs:
+  junit-path:
+    description: Glob to the JUnit XML file(s).
+    required: true
+  artifact-name:
+    description: Unique artifact name for this matrix cell (upload-artifact@v4 rejects duplicates).
+    required: true
+  check-name:
+    description: Title of the published GitHub Check for this cell.
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Upload JUnit XML artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ inputs.junit-path }}
+        if-no-files-found: error
+        include-hidden-files: true
+        retention-days: 14
+    - name: Publish JUnit as a Check
+      uses: dorny/test-reporter@v2
+      with:
+        name: ${{ inputs.check-name }}
+        path: ${{ inputs.junit-path }}
+        reporter: java-junit
+        fail-on-error: false
+        fail-on-empty: false
