@@ -126,7 +126,7 @@ jobs:
         if: always()
         uses: ./ansible_collections/community/zabbix/.github/actions/publish-test-results
         with:
-          junit-path: ansible_collections/community/zabbix/tests/output/junit/*.xml
+          junit-path: tests/output/junit/*.xml
           artifact-name: junit-pi-full-${{ matrix.zabbix_container.version }}-${{ matrix.ansible_python.ansible }}-py${{ matrix.ansible_python.python }}
           check-name: JUnit pi-full ${{ matrix.zabbix_container.version }} ${{ matrix.ansible_python.ansible }}+py${{ matrix.ansible_python.python }}
           working-directory: ansible_collections/community/zabbix
