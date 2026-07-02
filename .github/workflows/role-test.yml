@@ -44,17 +44,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # SMOKE-VALIDATION ONLY: matrix temporarily reduced to confirm the reusable pattern
+        # (amd64+arm64 runners, per-cell ansible install, reporting). Full matrix restored next commit.
         distro:
-          - rockylinux8
-          - rockylinux9
-          - rockylinux10
-          - ubuntu2204
           - ubuntu2404
-          - ubuntu2604
-          - debian11
-          - debian12
-          - debian13
-          - opensuseleap15
         arch:
           - amd64
           - arm64
@@ -62,14 +55,7 @@ jobs:
           - "2.16"
           - "2.21"
         zabbix:
-          - v60
-          - v70
           - v74
-        exclude:
-          - distro: debian11
-            arch: arm64
-          - distro: ubuntu2604
-            zabbix: v60
     steps:
       - name: Check out code
         uses: actions/checkout@v6
