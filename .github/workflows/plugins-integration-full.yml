@@ -34,9 +34,13 @@ jobs:
       matrix:
         zabbix_container:
           - version: "6.0"
+            image_tag: "ubuntu-6.0-latest"
           - version: "7.0"
-          - version: "7.2"
+            image_tag: "ubuntu-7.0-latest"
           - version: "7.4"
+            image_tag: "ubuntu-7.4-latest"
+          - version: "8.0-trunk"
+            image_tag: "ubuntu-trunk"
         ansible_python:
           # https://docs.ansible.com/projects/ansible/latest/reference_appendices/release_and_maintenance.html#ansible-core-changelogs
           # Newest first (fast feedback), then older releases retroactively. Test the minimum and
@@ -97,7 +101,8 @@ jobs:
         with:
           compose-file: "./ansible_collections/community/zabbix/docker-compose.yml"
         env:
-          zabbix_version: ${{ matrix.zabbix_container.version }}
+          ZABBIX_SERVER_IMAGE_TAG: ${{ matrix.zabbix_container.image_tag }}
+          ZABBIX_WEB_IMAGE_TAG: ${{ matrix.zabbix_container.image_tag }}
 
       # Run the integration tests
       # As we need to connect to an existing docker container we can't use `--docker` here as the VMs would be on different
@@ -160,7 +165,7 @@ jobs:
             echo "";
             echo "Full support matrix under test:";
             echo "";
-            echo "- Zabbix: 6.0, 7.0, 7.2, 7.4";
+            echo "- Zabbix: 6.0, 7.0, 7.4, 8.0 (pre-release/trunk)";
             echo "- ansible-core: 2.16 through 2.21 plus devel (each with supported controller Python, up to 3.14)";
             echo "";
             echo "All supported combinations run. Any failures below are the current fix-list (real, fully visible - not hidden).";
