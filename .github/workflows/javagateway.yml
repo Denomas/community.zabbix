@@ -268,6 +268,21 @@ jobs:
     needs: [build-collection, base, legacy]
     runs-on: ubuntu-latest
     steps:
+      - name: Coverage scope
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Phase 1 coverage scope";
+            echo "";
+            echo "This run exercises the currently-supported, already-passing versions.";
+            echo "";
+            echo "- Zabbix: 6.0, 7.0, 7.2";
+            echo "- ansible-core: 2.16 through 2.21 (paired with supported controller Python <= 3.13)";
+            echo "";
+            echo "Temporarily disabled (commented, re-enabled in Phase 2 - see DECISIONS D23): Zabbix 7.4, ansible-core devel, Python 3.14.";
+            echo "Nothing is silently dropped; disabled cells are visible as commented matrix entries.";
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Aggregate matrix result
         uses: re-actors/alls-green@release/v1
         with:
