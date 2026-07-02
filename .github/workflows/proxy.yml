@@ -258,6 +258,7 @@ jobs:
           outcome: ${{ steps.run.outcome }}
           container: ${{ matrix.container.image }}
           zabbix: ${{ matrix.version }}
+          database: ${{ matrix.database }}
 
   legacy:
     needs: build-collection
