@@ -19,6 +19,10 @@ on:
 concurrency:
   group: web-${{ github.workflow }}-${{ github.event.pull_request.head.repo.full_name || github.repository }}-${{ github.event.pull_request.head.ref || github.ref }}
   cancel-in-progress: true
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
 jobs:
   build-collection:
     uses: ./.github/workflows/build_collection.yml
@@ -26,6 +30,7 @@ jobs:
   molecule:
     needs: build-collection
     runs-on: ubuntu-22.04
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -50,6 +55,8 @@ jobs:
           - v72
           - v70
           - v60
+        command:
+          - ""
         exclude:
           - container:
               image: rockylinux10
@@ -113,11 +120,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-molecule-galaxy-
 
-      - name: Install Collections and Roles 
+      - name: Install Collections and Roles
         run: |
           ansible-galaxy collection install -f -vvvv  community-zabbix-*.tar.gz
 
       - name: Run role tests
+        id: run
+        env:
+          ANSIBLE_CALLBACKS_ENABLED: ansible.builtin.junit
+          JUNIT_OUTPUT_DIR: ${{ github.workspace }}/junit
         run: >-
           MY_MOLECULE_CONTAINER=${{ matrix.container.image }}
           MY_MOLECULE_IMAGE=${{ matrix.container.image }}
@@ -127,15 +138,41 @@ jobs:
           MY_MOLECULE_DOCKER_COMMAND=${{ matrix.command }}
           molecule test -s ${{ matrix.collection_role }}
 
+      - name: Publish test results
+        if: always()
+        uses: ./.github/actions/publish-test-results
+        with:
+          junit-path: junit/*.xml
+          artifact-name: junit-web-molecule-${{ matrix.container.image }}-${{ matrix.version }}-${{ matrix.database }}-${{ matrix.web_server }}
+          check-name: JUnit web molecule ${{ matrix.container.image }} ${{ matrix.version }} ${{ matrix.database }} ${{ matrix.web_server }}
+
+      - name: Upload failure logs
+        if: failure()
+        uses: ./.github/actions/upload-failure-logs
+        with:
+          artifact-name: logs-web-molecule-${{ matrix.container.image }}-${{ matrix.version }}-${{ matrix.database }}-${{ matrix.web_server }}
+          paths: |
+            junit/
+            ~/.cache/molecule/
+
+      - name: Report result
+        if: always()
+        uses: ./.github/actions/report-result
+        with:
+          outcome: ${{ steps.run.outcome }}
+          container: ${{ matrix.container.image }}
+          zabbix: ${{ matrix.version }}
+          database: "${{ matrix.database }}/${{ matrix.web_server }}"
+
   legacy:
     needs: build-collection
     runs-on: ubuntu-22.04
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
         container:
-          - image: rockylinux8
-            ansible_core: ansible-core<2.17
+          # Deduplicated: a second identical rockylinux8 entry was removed (duplicate cells collide on artifact name).
           - image: rockylinux8
             ansible_core: ansible-core<2.17
           - image: opensuseleap15
@@ -153,6 +190,8 @@ jobs:
           - v72
           - v70
           - v60
+        command:
+          - ""
         exclude:
           - container:
               image: opensuseleap15
@@ -211,11 +250,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-molecule-galaxy-
 
-      - name: Install Collections and Roles 
+      - name: Install Collections and Roles
         run: |
           ansible-galaxy collection install -f -vvvv  community-zabbix-*.tar.gz
 
       - name: Run role tests
+        id: run
+        env:
+          ANSIBLE_CALLBACKS_ENABLED: ansible.builtin.junit
+          JUNIT_OUTPUT_DIR: ${{ github.workspace }}/junit
         run: >-
           MY_MOLECULE_CONTAINER=${{ matrix.container.image }}
           MY_MOLECULE_IMAGE=${{ matrix.container.image }}
@@ -223,4 +266,56 @@ jobs:
           MY_MOLECULE_DATABASE=${{ matrix.database }}
           MY_MOLECULE_WEB_SERVER=${{ matrix.web_server }}
           MY_MOLECULE_DOCKER_COMMAND=${{ matrix.command }}
-          molecule test -s ${{ matrix.collection_role }}          
+          molecule test -s ${{ matrix.collection_role }}
+
+      - name: Publish test results
+        if: always()
+        uses: ./.github/actions/publish-test-results
+        with:
+          junit-path: junit/*.xml
+          artifact-name: junit-web-legacy-${{ matrix.container.image }}-${{ matrix.version }}-${{ matrix.database }}-${{ matrix.web_server }}
+          check-name: JUnit web legacy ${{ matrix.container.image }} ${{ matrix.version }} ${{ matrix.database }} ${{ matrix.web_server }}
+
+      - name: Upload failure logs
+        if: failure()
+        uses: ./.github/actions/upload-failure-logs
+        with:
+          artifact-name: logs-web-legacy-${{ matrix.container.image }}-${{ matrix.version }}-${{ matrix.database }}-${{ matrix.web_server }}
+          paths: |
+            junit/
+            ~/.cache/molecule/
+
+      - name: Report result
+        if: always()
+        uses: ./.github/actions/report-result
+        with:
+          outcome: ${{ steps.run.outcome }}
+          container: ${{ matrix.container.image }}
+          zabbix: ${{ matrix.version }}
+          database: "${{ matrix.database }}/${{ matrix.web_server }}"
+
+  ci:
+    name: CI (web)
+    if: always()
+    needs: [build-collection, molecule, legacy]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Coverage scope
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Coverage scope";
+            echo "";
+            echo "Full support matrix under test:";
+            echo "";
+            echo "- Zabbix: 6.0, 7.0, 7.2, 7.4";
+            echo "- ansible-core: 2.16 through 2.21 plus devel (each with supported controller Python, up to 3.14)";
+            echo "";
+            echo "All supported combinations run. Any failures below are the current fix-list (real, fully visible - not hidden).";
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Aggregate matrix result
+        uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}
