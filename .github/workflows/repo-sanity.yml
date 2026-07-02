@@ -99,6 +99,7 @@ jobs:
         run: ansible-test sanity --docker -v --color --exclude molecule/ --python ${{ matrix.python }}
         working-directory: ./ansible_collections/community/zabbix
 
+      # ansible-test sanity emits no JUnit, so only a PASS/FAIL summary row is published here.
       - name: Report result
         if: always()
         uses: ./ansible_collections/community/zabbix/.github/actions/report-result
@@ -113,6 +114,7 @@ jobs:
     if: always()
     needs: [tox-linters, sanity]
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Coverage scope
         if: always()

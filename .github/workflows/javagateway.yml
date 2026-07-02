@@ -267,6 +267,7 @@ jobs:
     if: always()
     needs: [build-collection, base, legacy]
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Coverage scope
         if: always()

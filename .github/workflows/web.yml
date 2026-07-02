@@ -162,7 +162,7 @@ jobs:
           outcome: ${{ steps.run.outcome }}
           container: ${{ matrix.container.image }}
           zabbix: ${{ matrix.version }}
-          database: ${{ matrix.database }}
+          database: "${{ matrix.database }}/${{ matrix.web_server }}"
 
   legacy:
     needs: build-collection
@@ -292,13 +292,14 @@ jobs:
           outcome: ${{ steps.run.outcome }}
           container: ${{ matrix.container.image }}
           zabbix: ${{ matrix.version }}
-          database: ${{ matrix.database }}
+          database: "${{ matrix.database }}/${{ matrix.web_server }}"
 
   ci:
     name: CI (web)
     if: always()
     needs: [build-collection, molecule, legacy]
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Coverage scope
         if: always()

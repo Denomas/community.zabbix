@@ -259,6 +259,7 @@ jobs:
           container: ${{ matrix.container.image }}
           zabbix: ${{ matrix.version }}
           database: ${{ matrix.database }}
+          scenario: ${{ matrix.collection_role }}
 
   legacy:
     needs: build-collection
@@ -398,6 +399,7 @@ jobs:
     if: always()
     needs: [build-collection, base, psk, legacy]
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Coverage scope
         if: always()
