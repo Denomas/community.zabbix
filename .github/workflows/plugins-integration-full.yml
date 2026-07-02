@@ -34,8 +34,44 @@ jobs:
       matrix:
         zabbix_container:
           - version: "6.0"
+          - version: "7.0"
+          - version: "7.2"
+          # TEMP Phase-1 (D23): re-enable in Phase 2
+          # - version: "7.4"
         ansible_python:
-          # DORNY-CONFIRM: temporary 1-cell reduction to confirm the dorny path fix renders a Check.
+          # https://docs.ansible.com/projects/ansible/latest/reference_appendices/release_and_maintenance.html#ansible-core-changelogs
+          # Newest first (fast feedback), then older releases retroactively. Test the minimum and
+          # maximum supported controller Python per ansible-core branch. devel = next stable.
+          # TEMP Phase-1 (D23): re-enable in Phase 2
+          # - ansible: devel
+          #   python: '3.14'
+          # TEMP Phase-1 (D23): re-enable in Phase 2
+          # - ansible: devel
+          #   python: '3.13'
+          # TEMP Phase-1 (D23): re-enable in Phase 2
+          # - ansible: stable-2.21
+          #   python: '3.14'
+          - ansible: stable-2.21
+            python: '3.12'
+          # TEMP Phase-1 (D23): re-enable in Phase 2
+          # - ansible: stable-2.20
+          #   python: '3.14'
+          - ansible: stable-2.20
+            python: '3.12'
+          - ansible: stable-2.19
+            python: '3.13'
+          - ansible: stable-2.19
+            python: '3.11'
+          - ansible: stable-2.18
+            python: '3.13'
+          - ansible: stable-2.18
+            python: '3.11'
+          - ansible: stable-2.17
+            python: '3.12'
+          - ansible: stable-2.17
+            python: '3.10'
+          - ansible: stable-2.16
+            python: '3.12'
           - ansible: stable-2.16
             python: '3.10'
 
