@@ -60,10 +60,12 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v6
 
-      - name: Set up Python 3.11
+      # Python 3.12 is the only controller Python in BOTH ansible-core 2.16 (>=3.10) and
+      # 2.21 (>=3.12) ranges, so it works for every cell of the ansible matrix.
+      - name: Set up Python 3.12
         uses: actions/setup-python@v6
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           cache: pip
           cache-dependency-path: molecule/requirements.txt
 
@@ -150,5 +152,5 @@ jobs:
           zabbix: ${{ matrix.zabbix }}
           arch: ${{ matrix.arch }}
           ansible: ${{ matrix.ansible }}
-          python: "3.11"
+          python: "3.12"
           database: "${{ inputs.database }}${{ inputs.web_server && format('/{0}', inputs.web_server) || '' }}"
