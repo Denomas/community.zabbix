@@ -2,6 +2,7 @@
 name: "community.zabbix.zabbix_javagateway"
 on:
   workflow_call:
+  workflow_dispatch:
   push:
     paths:
       - "roles/zabbix_javagateway/**"
