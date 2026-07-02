@@ -12,6 +12,10 @@ on:
       - "plugins/modules/**"
       - "tests/integration/**"
       - "!tests/integration/targets/setup_zabbix/**"
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
 jobs:
   prepare:
     runs-on: ubuntu-latest
@@ -93,6 +97,7 @@ jobs:
     needs: prepare
     if: needs.prepare.outputs.has_targets == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     name: I (${{ matrix.zabbix_container.version}} Ⓐ${{ matrix.ansible_python.ansible }}+py${{ matrix.ansible_python.python }}})
     strategy:
       fail-fast: false
@@ -101,20 +106,26 @@ jobs:
           - version: "6.0"
           - version: "7.0"
           - version: "7.2"
-          - version: "7.4"
+          # TEMP Phase-1 (D23): re-enable in Phase 2
+          # - version: "7.4"
         ansible_python:
+          # https://docs.ansible.com/projects/ansible/latest/reference_appendices/release_and_maintenance.html#ansible-core-changelogs
           # Newest first (fast feedback), then older releases retroactively. Test the minimum and
           # maximum supported controller Python per ansible-core branch. devel = next stable.
-          - ansible: devel
-            python: '3.14'
-          - ansible: devel
-            python: '3.13'
-          - ansible: stable-2.21
-            python: '3.14'
+          # TEMP Phase-1 (D23): re-enable in Phase 2
+          # - ansible: devel
+          #   python: '3.14'
+          # TEMP Phase-1 (D23): re-enable in Phase 2
+          # - ansible: devel
+          #   python: '3.13'
+          # TEMP Phase-1 (D23): re-enable in Phase 2
+          # - ansible: stable-2.21
+          #   python: '3.14'
           - ansible: stable-2.21
             python: '3.12'
-          - ansible: stable-2.20
-            python: '3.14'
+          # TEMP Phase-1 (D23): re-enable in Phase 2
+          # - ansible: stable-2.20
+          #   python: '3.14'
           - ansible: stable-2.20
             python: '3.12'
           - ansible: stable-2.19
@@ -150,7 +161,7 @@ jobs:
         run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible_python.ansible }}.tar.gz --disable-pip-version-check
 
       - name: Install ansible.netcommon collection
-        run: ansible-galaxy collection install ansible.netcommon -p $GITHUB_WORKSPACE
+        run: ansible-galaxy collection install ansible.netcommon -p "$GITHUB_WORKSPACE"
         working-directory: ./ansible_collections/community/zabbix
 
       - name: Zabbix container server provisioning
@@ -161,6 +172,7 @@ jobs:
           zabbix_version: ${{ matrix.zabbix_container.version }}
 
       - name: Run targeted integration tests
+        id: run
         env:
           TARGETS: ${{ needs.prepare.outputs.targets }}
         shell: bash
@@ -177,3 +189,42 @@ jobs:
       - uses: codecov/codecov-action@v6
         with:
           fail_ci_if_error: false
+
+      - name: Publish test results
+        if: always()
+        uses: ./ansible_collections/community/zabbix/.github/actions/publish-test-results
+        with:
+          junit-path: tests/output/junit/*.xml
+          artifact-name: junit-pi-targeted-${{ matrix.zabbix_container.version }}-${{ matrix.ansible_python.ansible }}-py${{ matrix.ansible_python.python }}
+          check-name: JUnit pi-targeted ${{ matrix.zabbix_container.version }} ${{ matrix.ansible_python.ansible }}+py${{ matrix.ansible_python.python }}
+          working-directory: ansible_collections/community/zabbix
+
+      - name: Upload failure logs
+        if: failure()
+        uses: ./ansible_collections/community/zabbix/.github/actions/upload-failure-logs
+        with:
+          artifact-name: logs-pi-targeted-${{ matrix.zabbix_container.version }}-${{ matrix.ansible_python.ansible }}-py${{ matrix.ansible_python.python }}
+          paths: |
+            ansible_collections/community/zabbix/tests/output/
+
+      - name: Report result
+        if: always()
+        uses: ./ansible_collections/community/zabbix/.github/actions/report-result
+        with:
+          outcome: ${{ steps.run.outcome }}
+          scenario: integration-targeted
+          zabbix: ${{ matrix.zabbix_container.version }}
+          ansible: ${{ matrix.ansible_python.ansible }}
+          python: py${{ matrix.ansible_python.python }}
+
+  ci:
+    name: CI (integration targeted)
+    if: always()
+    needs: [prepare, integration]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Aggregate matrix result
+        uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+          allowed-skips: integration
