@@ -39,7 +39,10 @@ permissions:
 
 jobs:
   molecule:
-    runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
+    # ubuntu-24.04 runners break systemd/sudo in EL/older geerlingguy containers (converge fact-gather
+    # fails with sudo PAM "authentication info" errors); classified on 2026-07-03 (same cell passes on
+    # 22.04, fails on 24.04). Use 22.04 (amd64) / 22.04-arm (arm64); revisit 24.04-compat later.
+    runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-22.04-arm' || 'ubuntu-22.04' }}
     timeout-minutes: 60
     strategy:
       fail-fast: false
