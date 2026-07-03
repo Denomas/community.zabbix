@@ -163,10 +163,10 @@ jobs:
           {
             echo "## Coverage scope";
             echo "";
-            echo "Full support matrix under test:";
+            echo "Integration (plugin/module) matrix under test:";
             echo "";
-            echo "- Zabbix: 6.0, 7.0, 7.4, 8.0 (pre-release/trunk)";
-            echo "- ansible-core: 2.16 through 2.21 plus devel (each with supported controller Python, up to 3.14)";
+            echo "- Zabbix: 6.0, 7.0, 7.4, 8.0 (pre-release via ubuntu-trunk docker image)";
+            echo "- ansible-core: 2.16 through 2.21 plus devel (each with min+max supported controller Python, up to 3.14)";
             echo "";
             echo "All supported combinations run. Any failures below are the current fix-list (real, fully visible - not hidden).";
           } >> "$GITHUB_STEP_SUMMARY"

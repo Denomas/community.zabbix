@@ -2,6 +2,7 @@
 name: "community.zabbix.zabbix_agent"
 on:
   workflow_call:
+  workflow_dispatch:
   push:
     paths:
       - "roles/zabbix_agent/**"
@@ -58,10 +59,12 @@ jobs:
           {
             echo "## Coverage scope";
             echo "";
-            echo "Full support matrix under test:";
+            echo "Full role-test matrix under test:";
             echo "";
-            echo "- Zabbix: 6.0, 7.0, 7.2, 7.4";
-            echo "- ansible-core: 2.16 through 2.21 plus devel (each with supported controller Python, up to 3.14)";
+            echo "- Zabbix: 6.0, 7.0, 7.4 (7.2 dropped - EOL; 8.0 has no packages yet - integration-only)";
+            echo "- Distros: rockylinux 8/9/10, ubuntu 22.04/24.04/26.04, debian 11/12/13, opensuse leap 15";
+            echo "- Arch: amd64 + arm64 (except debian11 arm64 - no Zabbix arm64 packages)";
+            echo "- ansible-core: 2.16 (floor) + 2.21 (latest); controller Python 3.12";
             echo "";
             echo "All supported combinations run. Any failures below are the current fix-list (real, fully visible - not hidden).";
           } >> "$GITHUB_STEP_SUMMARY"
