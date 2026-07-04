@@ -73,6 +73,10 @@ jobs:
             arch: arm64
           - distro: ubuntu2604
             zabbix: v60
+          # EL8 default python is 3.6, too old for ansible-core 2.21 modules (need >=3.9).
+          # EL8 is covered on the 2.16 floor; users on 2.21 must point the interpreter at python3.9.
+          - distro: rockylinux8
+            ansible: "2.21"
     steps:
       - name: Check out code
         uses: actions/checkout@v6
