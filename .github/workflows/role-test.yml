@@ -38,7 +38,44 @@ permissions:
   pull-requests: write
 
 jobs:
+  # Zabbix does not ship every package for every distro/version/arch. The gating package
+  # differs per role (agent is widest; server/web need server-side packages that are absent
+  # on some distros). Rather than test unsupported cells and fail the role's version gate, we
+  # compute the per-role exclude list here (single source of truth, keyed on inputs.role) and
+  # feed it into the molecule matrix. Availability verified against repo.zabbix.com 2026-07-04.
+  setup:
+    runs-on: ubuntu-22.04
+    outputs:
+      exclude: ${{ steps.gen.outputs.exclude }}
+    steps:
+      - name: Compute per-role matrix excludes
+        id: gen
+        env:
+          ROLE: ${{ inputs.role }}
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+          role = os.environ["ROLE"]
+          # Common gaps (every role): no arm64 packages for Debian 11 bullseye (any version);
+          # no Zabbix 6.0 repo for Ubuntu 26.04 resolute; EL8 default python 3.6 is too old for
+          # ansible-core 2.21 modules.
+          exclude = [
+              {"distro": "debian11", "arch": "arm64"},
+              {"distro": "ubuntu2604", "zabbix": "v60"},
+              {"distro": "rockylinux8", "ansible": "2.21"},
+          ]
+          if role != "agent":
+              # EL10 (Rocky 10) Zabbix 6.0 ships zabbix-agent only; no server/proxy/web/java/web-service.
+              exclude.append({"distro": "rockylinux10", "zabbix": "v60"})
+          if role in ("server", "web"):
+              # Debian 11 (bullseye) ships no zabbix-server / zabbix-frontend-php for 7.0 or 7.4.
+              exclude.append({"distro": "debian11", "zabbix": "v70"})
+              exclude.append({"distro": "debian11", "zabbix": "v74"})
+          print("exclude=" + json.dumps(exclude))
+          PY
+
   molecule:
+    needs: setup
     # ubuntu-24.04 runners break systemd/sudo in EL/older geerlingguy containers (converge fact-gather
     # fails with sudo PAM "authentication info" errors); classified on 2026-07-03 (same cell passes on
     # 22.04, fails on 24.04). Use 22.04 (amd64) / 22.04-arm (arm64); revisit 24.04-compat later.
@@ -68,15 +105,10 @@ jobs:
           - v60
           - v70
           - v74
-        exclude:
-          - distro: debian11
-            arch: arm64
-          - distro: ubuntu2604
-            zabbix: v60
-          # EL8 default python is 3.6, too old for ansible-core 2.21 modules (need >=3.9).
-          # EL8 is covered on the 2.16 floor; users on 2.21 must point the interpreter at python3.9.
-          - distro: rockylinux8
-            ansible: "2.21"
+        # Computed per-role in the `setup` job (see comment there). Common exclusions:
+        # debian11 arm64 (no packages), ubuntu2604 + v60 (no 6.0 repo), rockylinux8 + ansible 2.21
+        # (EL8 default python 3.6 too old). Plus role-specific package-availability gaps.
+        exclude: ${{ fromJSON(needs.setup.outputs.exclude) }}
     steps:
       - name: Check out code
         uses: actions/checkout@v6
