@@ -120,7 +120,13 @@ jobs:
             ${{ runner.os }}-${{ matrix.arch }}-molecule-galaxy-
 
       - name: Install Collections and Roles
-        run: ansible-galaxy collection install -f -vvvv community-zabbix-*.tar.gz
+        # ponytail: retry to survive transient Galaxy 5xx while downloading deps.
+        run: |
+          for i in 1 2 3; do
+            ansible-galaxy collection install -f -vvvv community-zabbix-*.tar.gz && exit 0
+            echo "galaxy install failed (attempt $i), retrying"; sleep 15
+          done
+          exit 1
 
       - name: Run role tests
         id: run
