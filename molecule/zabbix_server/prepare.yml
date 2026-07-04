@@ -12,6 +12,23 @@
         dest: /usr/sbin/policy-rc.d
       when: ansible_facts['os_family'] == 'Debian'
 
+    # EL aarch64 geerlingguy base images ship the EPEL repo and key file but do not import the key
+    # into the rpmdb, so the ansible dnf module fails GPG validation on EPEL dependencies such as
+    # fping (pulled in by zabbix-server). Import it up front; idempotent and skipped where absent.
+    - name: "Stat EPEL GPG key (EL)"
+      ansible.builtin.stat:
+        path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_facts['distribution_major_version'] }}"
+      register: _epel_gpg_key
+      when: ansible_facts['os_family'] == 'RedHat'
+
+    - name: "Import EPEL GPG key (EL base-image workaround)"
+      ansible.builtin.rpm_key:
+        state: present
+        key: "/etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_facts['distribution_major_version'] }}"
+      when:
+        - ansible_facts['os_family'] == 'RedHat'
+        - _epel_gpg_key.stat is defined and _epel_gpg_key.stat.exists
+
     - name: "Installing sudo"
       ansible.builtin.package:
         name:
