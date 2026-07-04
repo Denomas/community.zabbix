@@ -9,6 +9,8 @@ on:
       - "molecule/zabbix_proxy/**"
       - "molecule/requirements.txt"
       - ".github/workflows/proxy.yml"
+      - ".github/workflows/role-test.yml"
+      - ".github/actions/**"
       - "roles/zabbix_repo/**"
   pull_request:
     paths:
@@ -16,6 +18,8 @@ on:
       - "molecule/zabbix_proxy/**"
       - "molecule/requirements.txt"
       - ".github/workflows/proxy.yml"
+      - ".github/workflows/role-test.yml"
+      - ".github/actions/**"
       - "roles/zabbix_repo/**"
 concurrency:
   group: proxy-${{ github.workflow }}-${{ github.event.pull_request.head.repo.full_name || github.repository }}-${{ github.event.pull_request.head.ref || github.ref }}

@@ -9,6 +9,8 @@ on:
       - "molecule/zabbix_javagateway/**"
       - "molecule/requirements.txt"
       - ".github/workflows/javagateway.yml"
+      - ".github/workflows/role-test.yml"
+      - ".github/actions/**"
       - "roles/zabbix_repo/**"
   pull_request:
     paths:
@@ -16,6 +18,8 @@ on:
       - "molecule/zabbix_javagateway/**"
       - "molecule/requirements.txt"
       - ".github/workflows/javagateway.yml"
+      - ".github/workflows/role-test.yml"
+      - ".github/actions/**"
       - "roles/zabbix_repo/**"
 concurrency:
   group: gateway-${{ github.workflow }}-${{ github.event.pull_request.head.repo.full_name || github.repository }}-${{ github.event.pull_request.head.ref || github.ref }}
