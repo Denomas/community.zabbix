@@ -1,0 +1,2 @@
+bugfixes:
+  - Zabbix roles - reconcile the supported OS/version maps with actual Zabbix package availability so supported distro and version combinations (for example Debian 11 with Zabbix 7.0/7.4) are no longer rejected by the "version is supported" check.
