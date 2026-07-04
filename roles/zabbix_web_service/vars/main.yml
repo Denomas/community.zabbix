@@ -16,9 +16,9 @@ _zabbix_web_service_valid_versions:
     - "7.0"
     - "6.0"
   RedHat-10:
+    # EL10 has no zabbix-web-service package for 6.0 (agent-only branch); 7.0+ only.
     - "7.4"
     - "7.0"
-    - "6.0"
   RedHat-9:
     - "7.4"
     - "7.2"
