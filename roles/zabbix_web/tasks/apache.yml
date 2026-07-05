@@ -9,6 +9,10 @@
   community.general.apache2_module:
     name: "{{ item }}"
     state: present
+    # The packaged Zabbix apache conf (7.0+) already contains ProxyTimeout, which apache2ctl cannot
+    # parse until mod_proxy is enabled; skip the module's internal config check so the first module
+    # can be enabled despite that temporarily-invalid config (config is valid once all are enabled).
+    ignore_configcheck: true
   loop:
     - rewrite
     - proxy
