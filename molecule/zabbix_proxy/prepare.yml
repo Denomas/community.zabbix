@@ -12,22 +12,15 @@
         dest: /usr/sbin/policy-rc.d
       when: ansible_facts['os_family'] == 'Debian'
 
-    # EL aarch64 geerlingguy base images ship the EPEL repo and key file but do not import the key
-    # into the rpmdb, so the ansible dnf module fails GPG validation on EPEL dependencies such as
-    # fping (pulled in by zabbix-proxy). Import it up front; idempotent and skipped where absent.
-    - name: "Stat EPEL GPG key (EL)"
-      ansible.builtin.stat:
-        path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_facts['distribution_major_version'] }}"
-      register: _epel_gpg_key
-      when: ansible_facts['os_family'] == 'RedHat'
-
-    - name: "Import EPEL GPG key (EL base-image workaround)"
+    # On EL aarch64, Zabbix signs its "non-supported" repo packages (e.g. fping, pulled in by
+    # zabbix-proxy) with a key that the zabbix_repo role does not install (the amd64 packages use
+    # a different key), so the dnf module fails GPG validation with "Public key ... is not
+    # installed". Pre-import that Zabbix key. Idempotent; RedHat only; unused where not needed.
+    - name: "Import Zabbix non-supported repo GPG key (EL aarch64 fping)"
       ansible.builtin.rpm_key:
         state: present
-        key: "/etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_facts['distribution_major_version'] }}"
-      when:
-        - ansible_facts['os_family'] == 'RedHat'
-        - _epel_gpg_key.stat is defined and _epel_gpg_key.stat.exists
+        key: https://repo.zabbix.com/RPM-GPG-KEY-ZABBIX-08EFA7DD
+      when: ansible_facts['os_family'] == 'RedHat'
 
     - name: "Installing packages"
       ansible.builtin.package:
