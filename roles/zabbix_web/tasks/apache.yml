@@ -1,4 +1,24 @@
 ---
+- name: "Apache | Enable required modules (Debian)"
+  # The Zabbix frontend vhost uses RewriteEngine, and on Zabbix 7.0+ it proxies PHP to php-fpm
+  # (SetHandler "proxy:...|fcgi://") while the packaged apache conf adds ProxyTimeout - all of which
+  # need mod_rewrite, mod_proxy and mod_proxy_fcgi. These are not enabled by default on Debian/Ubuntu,
+  # so "apache2ctl configtest" fails with "Invalid command 'ProxyTimeout'". RedHat/SUSE load these
+  # modules by default, so this is only needed for the Debian family.
+  when: ansible_facts['os_family'] == 'Debian'
+  community.general.apache2_module:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - rewrite
+    - proxy
+    - proxy_fcgi
+  become: true
+  notify:
+    - restart http service
+  tags:
+    - config
+
 - name: "Apache | Install apache vhost"
   when: zabbix_web_create_vhost
   ansible.builtin.template:
